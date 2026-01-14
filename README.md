@@ -29,7 +29,7 @@ Web Time Tracker 是一款浏览器扩展，用于统计并可视化您在不同
 
 实际效果展示
 
-![项目图片1](https://browser-extension.cn-nb1.rains3.com/pic/1.png)
+![项目图片1](https://browser-extension.cn-nb1.rains3.com/pic/2.png)
 
 ## 安装方法
 
