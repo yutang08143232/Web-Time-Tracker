@@ -7,13 +7,28 @@ let isUpdating = false;
 let updateQueue = Promise.resolve();
 
 // 获取当前域名
-function getHostname(url) {
+function getHostname(url, settings) {
   try {
-    if (!url || url.startsWith('chrome://') || url.startsWith('edge://') || url.startsWith('about:') || url.startsWith('file://')) {
+    if (!url || url.startsWith('chrome://') || url.startsWith('edge://') || url.startsWith('about:')) {
       return null;
     }
+
+    if (url.startsWith('file://')) {
+        return (settings && settings.trackLocalFiles) ? 'Local File' : null;
+    }
+
     const u = new URL(url);
-    return u.hostname;
+    const hostname = u.hostname;
+    
+    // 选择 IP
+    const isIP = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(hostname) || hostname === 'localhost';
+    if (isIP) {
+        if (settings && settings.trackIP === false) {
+            return null;
+        }
+    }
+
+    return hostname;
   } catch (e) {
     return null;
   }
@@ -29,7 +44,10 @@ function updateTime() {
 
       if (state && state.url && state.startTime) {
         const duration = now - state.startTime;
-        const hostname = getHostname(state.url);
+        
+        // Load settings
+        const { settings } = await chrome.storage.local.get(['settings']);
+        const hostname = getHostname(state.url, settings);
 
         if (hostname && duration > 0 && duration < 86400000) { // 忽略超过24小时的异常数据
           const localData = await chrome.storage.local.get(['timeData']);
