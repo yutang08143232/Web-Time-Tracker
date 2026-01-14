@@ -260,12 +260,13 @@
   </div>
 
   <div class="actions">
+    <button id="settings-btn">设置</button>
     <button id="intro-btn">介绍/帮助</button>
     <button id="refresh-btn">刷新</button>
     <button id="reset-btn" style="color: #d93025; border-color: #ffcdd2;">清空数据</button>
   </div>
 
-  <!-- Auth Modal -->
+  <!-- 权限 -->
   <div class="auth-form" id="auth-modal">
     <button class="back-btn" id="close-auth-btn">← 返回</button>
     
@@ -275,7 +276,7 @@
       <div class="tab-btn" data-tab="reset">找回密码</div>
     </div>
 
-    <!-- Login Form -->
+    <!-- 登录 -->
     <div id="login-form">
       <div class="form-group">
         <label>用户名</label>
@@ -288,7 +289,7 @@
       <button class="primary-btn" style="width:100%" id="do-login-btn">登录</button>
     </div>
 
-    <!-- Register Form -->
+    <!-- 注册账号 -->
     <div id="register-form" style="display:none">
       <div class="form-group">
         <label>用户名</label>
@@ -312,7 +313,7 @@
       <button class="primary-btn" style="width:100%" id="do-register-btn">注册</button>
     </div>
 
-    <!-- Reset Form -->
+    <!-- 找回密码  -->
     <div id="reset-form" style="display:none">
       <div class="form-group">
         <label>注册邮箱</label>
@@ -334,6 +335,26 @@
         <input type="password" id="reset-confirm-password">
       </div>
       <button class="primary-btn" style="width:100%" id="do-reset-btn">重置密码</button>
+    </div>
+  </div>
+
+  <!-- 设置 Modal -->
+  <div class="auth-form" id="settings-modal">
+    <button class="back-btn" id="close-settings-btn">返回</button>
+    <h2 style="font-size: 16px; margin-top: 0; margin-bottom: 20px;">设置</h2>
+    
+    <div class="form-group" style="display: flex; align-items: center; justify-content: space-between;">
+      <label for="setting-local-files" style="margin-bottom: 0; color: #333;">统计本地文件 (file://)</label>
+      <input type="checkbox" id="setting-local-files" style="width: auto;">
+    </div>
+    
+    <div class="form-group" style="display: flex; align-items: center; justify-content: space-between;">
+      <label for="setting-ip-address" style="margin-bottom: 0; color: #333;">统计 IP 地址</label>
+      <input type="checkbox" id="setting-ip-address" style="width: auto;">
+    </div>
+
+    <div style="margin-top: 20px; font-size: 12px; color: #888;">
+      更改设置将立即自动保存。
     </div>
   </div>
 
