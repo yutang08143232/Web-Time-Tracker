@@ -6,8 +6,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let resetConfirmTimeout = null;
   const resetBtn = document.getElementById('reset-btn');
-
-  // UI Event Listeners
   document.getElementById('login-trigger-btn').addEventListener('click', () => {
     document.getElementById('auth-modal').classList.add('active');
   });
@@ -37,7 +35,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  // Login
   document.getElementById('do-login-btn').addEventListener('click', async () => {
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
@@ -58,7 +55,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         document.getElementById('auth-modal').classList.remove('active');
         checkLoginStatus();
-        // Trigger initial sync
         chrome.runtime.sendMessage({ action: 'triggerSync' });
       } else {
         alert(data.msg);
@@ -68,7 +64,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Send Code
   document.getElementById('send-code-btn').addEventListener('click', async () => {
     const email = document.getElementById('reg-email').value;
     if(!email) return alert('请输入邮箱');
@@ -86,7 +81,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Register
   document.getElementById('do-register-btn').addEventListener('click', async () => {
     const username = document.getElementById('reg-username').value;
     const email = document.getElementById('reg-email').value;
@@ -113,7 +107,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Reset Password Send Code
   document.getElementById('send-reset-code-btn').addEventListener('click', async () => {
       const email = document.getElementById('reset-email').value;
       if(!email) return alert('请输入邮箱');
@@ -165,7 +158,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
   });
 
-  // Sync Button
   document.getElementById('sync-btn').addEventListener('click', () => {
     const btn = document.getElementById('sync-btn');
     btn.textContent = '同步中...';
@@ -174,7 +166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       btn.textContent = '同步';
       btn.disabled = false;
       if (response && response.success) {
-        renderStats(); // Re-render with potentially new data
+        renderStats(); 
       } else {
         alert('同步失败');
       }
@@ -259,12 +251,11 @@ async function checkLoginStatus() {
   if (token && username) {
     userEl.innerHTML = `<span>👤 ${username}</span>`;
     loginBtn.textContent = '退出';
-    loginBtn.classList.remove('auth-btn'); // Optional style change
-    // Override click for logout
+    loginBtn.classList.remove('auth-btn'); 
     loginBtn.replaceWith(loginBtn.cloneNode(true));
     document.getElementById('login-trigger-btn').addEventListener('click', async () => {
-      if (confirm('确定要退出登录吗？')) {
-        await chrome.storage.local.remove(['token', 'username', 'serverTimeData', 'syncedTimeData']);
+      if (confirm('确定要退出登录吗？\n注意：退出将同时清空本地的所有统计数据，以防止数据泄露给下一个账号。')) {
+        await chrome.storage.local.remove(['token', 'username', 'serverTimeData', 'syncedTimeData', 'timeData']);
         location.reload();
       }
     });
@@ -306,13 +297,8 @@ async function renderStats() {
       };
     }
     
-    // Merge Data Logic:
-    // Display = ServerTotal + (LocalCurrent - LocalLastSynced)
-    // If not logged in (no serverTimeData), just use timeData.
-    
     const mergedData = { ...serverTimeData };
     
-    // Iterate over local timeData to add unsynced deltas
     for (const [domain, duration] of Object.entries(timeData)) {
       const lastSynced = syncedTimeData[domain] || 0;
       const delta = Math.max(0, duration - lastSynced);
@@ -323,10 +309,6 @@ async function renderStats() {
         mergedData[domain] = delta;
       }
     }
-    
-    // If we have no server data (not logged in), we might want to fallback to just timeData
-    // But the above logic covers it: if serverTimeData is empty, mergedData is just the deltas.
-    // Wait, if lastSynced is 0 (never synced), delta is full duration. So mergedData = timeData. Correct.
     
     const grouped = {};
     Object.entries(mergedData).forEach(([hostname, duration]) => {
@@ -419,7 +401,6 @@ async function renderStats() {
 
     container.innerHTML = html;
 
-    // Add delete listeners
     document.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation(); // Prevent toggling details
@@ -429,12 +410,9 @@ async function renderStats() {
           return;
         }
 
-        // Identify all hostnames belonging to this apex domain
         const hostnamesToDelete = [];
-        // Check local timeData
         const { timeData = {}, syncedTimeData = {}, serverTimeData = {} } = await chrome.storage.local.get(['timeData', 'syncedTimeData', 'serverTimeData']);
         
-        // Find all relevant hostnames from all sources
         const allHostnames = new Set([
             ...Object.keys(timeData),
             ...Object.keys(syncedTimeData),
@@ -450,7 +428,6 @@ async function renderStats() {
         if (hostnamesToDelete.length === 0) return;
 
         try {
-            // 1. Call Server API to delete
             const { token } = await chrome.storage.local.get(['token']);
             if (token) {
                 const res = await fetch(`${SERVER_URL}/api/deleteData`, {
@@ -465,9 +442,6 @@ async function renderStats() {
                 if (!res.ok) {
                     const err = await res.json();
                     alert('云端删除失败: ' + (err.msg || '未知错误'));
-                    // We might still want to delete locally? Let's assume strict sync.
-                    // If strict, we stop here. But user might want to clean local anyway.
-                    // Let's proceed to clean local but warn user.
                 }
             }
 
@@ -480,7 +454,6 @@ async function renderStats() {
 
             await chrome.storage.local.set({ timeData, syncedTimeData, serverTimeData });
             
-            // 3. Re-render
             renderStats();
 
         } catch (error) {
