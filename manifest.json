@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Web Time Tracker",
+  "version": "1.1",
+  "description": "统计并可视化网页使用时长",
+  "permissions": [
+    "tabs",
+    "storage",
+    "webNavigation",
+    "alarms",
+    "favicon"
+  ],
+  "host_permissions": [
+    "https://yutangxiaowu.cn:6050/*",
+    "https://yutangxiaowu.cn/step/browser-extension/Web_Time_Tracker/intro.html"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "查看统计"
+  },
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

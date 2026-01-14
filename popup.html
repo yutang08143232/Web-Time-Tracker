@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>网页浏览统计</title>
+  <style>
+    body {
+      width: 350px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 15px;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      font-size: 18px;
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #333;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #stats-container {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .item {
+      margin-bottom: 10px;
+      background: white;
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center; /* Align items vertically */
+      font-size: 14px;
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+    .item-header:hover .delete-btn {
+      display: inline-block; /* Show delete button on hover */
+    }
+    .domain-container {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      overflow: hidden;
+    }
+    .delete-btn {
+      display: none; /* Hidden by default */
+      background: none;
+      border: none;
+      color: #999;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0 5px;
+      margin-left: 5px;
+    }
+    .delete-btn:hover {
+      color: #d93025;
+      background: none;
+    }
+    .domain {
+      font-weight: 500;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+      display: flex;
+      align-items: center;
+    }
+    .toggle-icon {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 5px;
+      transition: transform 0.2s;
+      color: #999;
+    }
+    .item.expanded .toggle-icon {
+      transform: rotate(90deg);
+    }
+    .subdomain-list {
+      display: none;
+      margin-top: 10px;
+      padding-top: 5px;
+      border-top: 1px dashed #eee;
+    }
+    .item.expanded .subdomain-list {
+      display: block;
+    }
+    .subdomain-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666;
+      padding: 3px 0;
+      padding-left: 20px;
+    }
+    .subdomain-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 180px;
+    }
+    .time {
+      color: #666;
+      font-size: 12px;
+    }
+    .bar-bg {
+      height: 6px;
+      background-color: #eee;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background-color: #4285f4;
+      border-radius: 3px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .actions {
+      margin-top: 15px;
+      text-align: right;
+    }
+    button {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      color: #555;
+    }
+    button:hover {
+      background-color: #f0f0f0;
+    }
+    .auth-section {
+      margin-bottom: 15px;
+      padding: 10px;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .user-info {
+      font-size: 13px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .auth-form {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #f9f9f9;
+      padding: 20px;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .auth-form.active {
+      display: block;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 12px;
+      color: #666;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .primary-btn {
+      background-color: #4285f4;
+      color: white;
+      border: none;
+    }
+    .primary-btn:hover {
+      background-color: #3367d6;
+    }
+    .back-btn {
+      border: none;
+      background: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+    .tab-switch {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      background: none;
+      border-bottom: 2px solid transparent;
+    }
+    .tab-btn.active {
+      color: #4285f4;
+      border-bottom-color: #4285f4;
+      font-weight: 500;
+    }
+    .code-row {
+      display: flex;
+      gap: 10px;
+    }
+    #send-code-btn {
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-section" id="auth-status-bar">
+    <div class="user-info" id="current-user">
+      <span>未登录</span>
+    </div>
+    <div>
+        <button id="sync-btn" style="margin-right: 5px; display: none;">同步</button>
+        <button id="login-trigger-btn" class="auth-btn">登录/注册</button>
+    </div>
+  </div>
+
+  <h1>
+    浏览时长统计
+    <small style="font-size: 12px; font-weight: normal; color: #888;" id="total-time"></small>
+  </h1>
+  
+  <div id="stats-container">
+    <div class="empty-state">加载中...</div>
+  </div>
+
+  <div class="actions">
+    <button id="intro-btn">介绍/帮助</button>
+    <button id="refresh-btn">刷新</button>
+    <button id="reset-btn" style="color: #d93025; border-color: #ffcdd2;">清空数据</button>
+  </div>
+
+  <!-- Auth Modal -->
+  <div class="auth-form" id="auth-modal">
+    <button class="back-btn" id="close-auth-btn">← 返回</button>
+    
+    <div class="tab-switch">
+      <div class="tab-btn active" data-tab="login">登录</div>
+      <div class="tab-btn" data-tab="register">注册</div>
+      <div class="tab-btn" data-tab="reset">找回密码</div>
+    </div>
+
+    <!-- Login Form -->
+    <div id="login-form">
+      <div class="form-group">
+        <label>用户名</label>
+        <input type="text" id="login-username">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="login-password">
+      </div>
+      <button class="primary-btn" style="width:100%" id="do-login-btn">登录</button>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-form" style="display:none">
+      <div class="form-group">
+        <label>用户名</label>
+        <input type="text" id="reg-username">
+      </div>
+      <div class="form-group">
+        <label>邮箱</label>
+        <div class="code-row">
+          <input type="email" id="reg-email">
+          <button id="send-code-btn">发送验证码</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>验证码</label>
+        <input type="text" id="reg-code">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="reg-password">
+      </div>
+      <button class="primary-btn" style="width:100%" id="do-register-btn">注册</button>
+    </div>
+
+    <!-- Reset Form -->
+    <div id="reset-form" style="display:none">
+      <div class="form-group">
+        <label>注册邮箱</label>
+        <div class="code-row">
+          <input type="email" id="reset-email">
+          <button id="send-reset-code-btn">发送验证码</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>验证码</label>
+        <input type="text" id="reset-code">
+      </div>
+      <div class="form-group">
+        <label>新密码</label>
+        <input type="password" id="reset-password">
+      </div>
+      <div class="form-group">
+        <label>确认新密码</label>
+        <input type="password" id="reset-confirm-password">
+      </div>
+      <button class="primary-btn" style="width:100%" id="do-reset-btn">重置密码</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

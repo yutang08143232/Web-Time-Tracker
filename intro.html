@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Time Tracker - 你的网页浏览时间管家</title>
+    <style>
+        :root {
+            --primary-color: #FB7299; /* B站粉色系 */
+            --secondary-color: #23ADE5; /* B站蓝色系 */
+            --text-color: #333;
+            --light-text-color: #666;
+            --border-color: #e0e0e0;
+            --bg-color: #fff;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px; 
+            margin: 0 auto;
+            box-shadow: none !important;
+            background-color: transparent !important;
+            padding: 0 !important;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        h1 {
+            color: var(--secondary-color); 
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .tagline {
+            color: var(--light-text-color);
+            font-size: 1rem;
+        }
+
+        .features-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2.5rem;
+            margin-top: 1rem;
+        }
+
+        .features-table th,
+        .features-table td {
+            padding: 1rem;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        .features-table th {
+            background-color: rgba(35, 173, 229, 0.1); /* 浅蓝色背景 */
+            color: var(--secondary-color);
+            font-weight: 600;
+            width: 20%;
+            white-space: nowrap;
+        }
+
+        .features-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .features-table .feature-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: var(--text-color);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 10px;
+        }
+
+        /* 
+           使用有序列表展示步骤，移除卡片装饰
+        */
+        .usage-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .usage-item {
+            padding: 1rem 0;
+            border-bottom: 1px dashed var(--border-color);
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .usage-item:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px; /* 小圆角，类似按钮 */
+            margin-right: 15px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .usage-content strong {
+            display: block;
+            margin-bottom: 0.3rem;
+            color: var(--text-color);
+        }
+
+        .usage-content span {
+            color: var(--light-text-color);
+            font-size: 0.95rem;
+        }
+
+        .footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .highlight {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 600px) {
+            .features-table, .features-table tbody, .features-table tr, .features-table td, .features-table th {
+                display: block;
+                width: 100%;
+            }
+            
+            .features-table tr {
+                margin-bottom: 1rem;
+                border: 1px solid var(--border-color);
+            }
+
+            .features-table th {
+                width: auto;
+                border-bottom: none;
+            }
+            
+            .features-table td {
+                border-top: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Web Time Tracker</h1>
+            <div class="tagline">简单、隐私、高效的网页浏览时间统计工具</div>
+        </header>
+
+        <h2>功能特性</h2>
+        <!-- 表格布局替代卡片 -->
+        <table class="features-table">
+            <tbody>
+                <tr>
+                    <th><span class="feature-icon">🛡️</span> 隐私优先</th>
+                    <td>未登录状态，所有统计数据仅存储在您的<strong>本地浏览器</strong>中，绝不上传至任何服务器。完全离线运行，安全无忧。登录后可以将数据同步到云端，实现跨设备统计。</td>
+                </tr>
+                <tr>
+                    <th><span class="feature-icon">📂</span> 智能聚合</th>
+                    <td>自动识别顶级域名（如 <span class="highlight">bilibili.com</span>），将所有子域名（www, search, space）时长合并统计，点击即可展开查看详情。</td>
+                </tr>
+                <tr>
+                    <th><span class="feature-icon">⚡</span> 极速轻量</th>
+                    <td>使用浏览器原生 API 获取图标，适配 <strong>Chrome & Edge</strong>。无后台常驻负担，极低内存占用。</td>
+                </tr>
+                <tr>
+                    <th><span class="feature-icon">🛑</span> 防误触设计</th>
+                    <td>清空数据采用<strong>双重确认机制</strong>：点击按钮 → 3秒倒计时确认 → 系统弹窗。彻底告别手滑误删。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>快速上手指南</h2>
+        <ul class="usage-list">
+            <li class="usage-item">
+                <span class="step-number">STEP 1</span>
+                <div class="usage-content">
+                    <strong>自动运行</strong>
+                    <span>安装后扩展即开始在后台默默工作，无需任何配置。只要您浏览网页，时间就会被记录。</span>
+                </div>
+            </li>
+            <li class="usage-item">
+                <span class="step-number">STEP 2</span>
+                <div class="usage-content">
+                    <strong>查看报表</strong>
+                    <span>点击浏览器右上角的扩展图标 🧩，即可查看按时长排序的网站列表。</span>
+                </div>
+            </li>
+            <li class="usage-item">
+                <span class="step-number">STEP 3</span>
+                <div class="usage-content">
+                    <strong>云端同步</strong>
+                    <span>点击顶部的“登录/注册”按钮，创建账号并登录。登录后，您的浏览数据将自动同步到云端，实现跨设备统计。支持手动点击“同步”按钮强制更新。</span>
+                </div>
+            </li>
+            <li class="usage-item">
+                <span class="step-number">STEP 4</span>
+                <div class="usage-content">
+                    <strong>探索详情</strong>
+                    <span>点击带有 <span style="color:#23ADE5; font-weight: bold;">▶</span> 箭头的域名，可以展开查看该域名下具体子域名的访问时长分布。</span>
+                </div>
+            </li>
+        </ul>
+
+        <div class="footer">
+            羽棠小屋 | 适配 Chrome & Microsoft Edge
+        </div>
+    </div>
+</body>
+</html>
