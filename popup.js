@@ -6,12 +6,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let resetConfirmTimeout = null;
   const resetBtn = document.getElementById('reset-btn');
-  document.getElementById('login-trigger-btn').addEventListener('click', () => {
-    document.getElementById('auth-modal').classList.add('active');
+  document.getElementById('login-trigger-btn')?.addEventListener('click', () => {
+    document.getElementById('auth-modal')?.classList.add('active');
   });
 
-  document.getElementById('close-auth-btn').addEventListener('click', () => {
-    document.getElementById('auth-modal').classList.remove('active');
+  document.getElementById('close-auth-btn')?.addEventListener('click', () => {
+    document.getElementById('auth-modal')?.classList.remove('active');
   });
 
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  document.getElementById('do-login-btn').addEventListener('click', async () => {
+  document.getElementById('do-login-btn')?.addEventListener('click', async () => {
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
     
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           token: data.data.token,
           username: username 
         });
-        document.getElementById('auth-modal').classList.remove('active');
+        document.getElementById('auth-modal')?.classList.remove('active');
         checkLoginStatus();
         chrome.runtime.sendMessage({ action: 'triggerSync' });
       } else {
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  document.getElementById('send-code-btn').addEventListener('click', async () => {
+  document.getElementById('send-code-btn')?.addEventListener('click', async () => {
     const email = document.getElementById('reg-email').value;
     if(!email) return alert('请输入邮箱');
     
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  document.getElementById('do-register-btn').addEventListener('click', async () => {
+  document.getElementById('do-register-btn')?.addEventListener('click', async () => {
     const username = document.getElementById('reg-username').value;
     const email = document.getElementById('reg-email').value;
     const code = document.getElementById('reg-code').value;
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const data = await res.json();
       if (data.code === 0) {
         alert('注册成功，请登录');
-        document.querySelector('.tab-btn[data-tab="login"]').click();
+        document.querySelector('.tab-btn[data-tab="login"]')?.click();
       } else {
         alert(data.msg);
       }
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  document.getElementById('send-reset-code-btn').addEventListener('click', async () => {
+  document.getElementById('send-reset-code-btn')?.addEventListener('click', async () => {
       const email = document.getElementById('reset-email').value;
       if(!email) return alert('请输入邮箱');
       
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Reset Password Submit
-  document.getElementById('do-reset-btn').addEventListener('click', async () => {
+  document.getElementById('do-reset-btn')?.addEventListener('click', async () => {
       const email = document.getElementById('reset-email').value;
       const code = document.getElementById('reset-code').value;
       const password = document.getElementById('reset-password').value;
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const data = await res.json();
             if (data.code === 0) {
                 alert('重置成功，请登录');
-                document.querySelector('.tab-btn[data-tab="login"]').click();
+                document.querySelector('.tab-btn[data-tab="login"]')?.click();
             } else {
                 alert(data.msg || '重置失败');
             }
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
   });
 
-  document.getElementById('sync-btn').addEventListener('click', () => {
+  document.getElementById('sync-btn')?.addEventListener('click', () => {
     const btn = document.getElementById('sync-btn');
     btn.textContent = '同步中...';
     btn.disabled = true;
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
-  resetBtn.addEventListener('click', async () => {
+  resetBtn?.addEventListener('click', async () => {
     if (resetBtn.classList.contains('confirming')) {
       clearTimeout(resetConfirmTimeout);
       resetBtn.classList.remove('confirming');
@@ -205,15 +205,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  document.getElementById('intro-btn').addEventListener('click', () => {
+  // 设置逻辑
+  const settingsModal = document.getElementById('settings-modal');
+  const localFilesCheckbox = document.getElementById('setting-local-files');
+  const ipCheckbox = document.getElementById('setting-ip-address');
+
+  async function loadSettings() {
+      if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) return;
+      const result = await chrome.storage.local.get(['settings']);
+      const settings = result.settings || {};
+      if (localFilesCheckbox) {
+        localFilesCheckbox.checked = !!settings.trackLocalFiles;
+      }
+      if (ipCheckbox) {
+        ipCheckbox.checked = settings.trackIP !== false; 
+      }
+  }
+
+  async function saveSettings() {
+      if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) return;
+      const settings = {
+          trackLocalFiles: localFilesCheckbox ? localFilesCheckbox.checked : false,
+          trackIP: ipCheckbox ? ipCheckbox.checked : true
+      };
+      await chrome.storage.local.set({ settings });
+  }
+
+  document.getElementById('settings-btn')?.addEventListener('click', async () => {
+      await loadSettings();
+      settingsModal.classList.add('active');
+  });
+
+  document.getElementById('close-settings-btn')?.addEventListener('click', () => {
+      settingsModal.classList.remove('active');
+  });
+
+  localFilesCheckbox?.addEventListener('change', saveSettings);
+  ipCheckbox?.addEventListener('change', saveSettings);
+
+  document.getElementById('intro-btn')?.addEventListener('click', () => {
     chrome.tabs.create({ url: 'https://yutangxiaowu.cn/step/browser-extension/Web_Time_Tracker/intro.html' });
   });
 
-  document.getElementById('refresh-btn').addEventListener('click', () => {
+  document.getElementById('refresh-btn')?.addEventListener('click', () => {
     renderStats();
   });
   
-  document.getElementById('stats-container').addEventListener('click', (e) => {
+  document.getElementById('stats-container')?.addEventListener('click', (e) => {
     const header = e.target.closest('.item-header');
     if (header) {
       const item = header.closest('.item');
